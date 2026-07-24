@@ -29,16 +29,6 @@ Its standout feature: give it a **center point** and every result is ranked **ne
 
 ---
 
-## 🖼️ Screenshots
-
-### Manage dashboard — create & track scraping jobs
-![Manage dashboard](docs/screenshots/manage.png)
-
-### Map view — results ranked nearest-first with distance badges
-![Map view with distances](docs/screenshots/mapview.png)
-
----
-
 ## 📊 Example output
 
 A real scrape of **“cafe in athens”** (center point set → sorted by distance):
