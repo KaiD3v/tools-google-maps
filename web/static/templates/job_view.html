@@ -1,0 +1,195 @@
+<div id="map-modal" class="map-modal" role="dialog" aria-modal="true" aria-labelledby="map-modal-title" onclick="if(event.target===this)closeJobMap()">
+    <div class="map-modal-content">
+        <div class="map-modal-header">
+            <h2 id="map-modal-title">Places</h2>
+            <button type="button" class="map-modal-close" aria-label="Close" onclick="closeJobMap()">&times;</button>
+        </div>
+        <div class="map-modal-body">
+            <div id="job-map"></div>
+            <div id="job-places-list"></div>
+        </div>
+    </div>
+    <script>
+    (function () {
+        var places = {{ . }};
+
+        var LEAFLET_CSS = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css';
+        var LEAFLET_JS = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';
+
+        // ensureLeaflet lazily loads Leaflet (CSS + JS) the first time the map
+        // is opened, then invokes callback once it is available.
+        function ensureLeaflet(callback) {
+            if (window.L) {
+                callback();
+                return;
+            }
+
+            if (!document.getElementById('leaflet-css')) {
+                var link = document.createElement('link');
+                link.id = 'leaflet-css';
+                link.rel = 'stylesheet';
+                link.href = LEAFLET_CSS;
+                document.head.appendChild(link);
+            }
+
+            var script = document.getElementById('leaflet-js');
+            if (!script) {
+                script = document.createElement('script');
+                script.id = 'leaflet-js';
+                script.src = LEAFLET_JS;
+                document.head.appendChild(script);
+            }
+
+            script.addEventListener('load', callback);
+        }
+
+        function escapeHtml(str) {
+            var div = document.createElement('div');
+            div.textContent = str == null ? '' : str;
+            return div.innerHTML;
+        }
+
+        function createMap() {
+            if (window.__jobMap) {
+                window.__jobMap.remove();
+            }
+
+            var map = L.map('job-map');
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            window.__jobMap = map;
+            return map;
+        }
+
+        function placePopup(place) {
+            var parts = ['<strong>' + escapeHtml(place.title) + '</strong>'];
+            if (place.address) {
+                parts.push(escapeHtml(place.address));
+            }
+            if (place.distance_text) {
+                parts.push('📍 ' + escapeHtml(place.distance_text) + ' away');
+            }
+            if (place.link && /^https?:\/\//i.test(place.link)) {
+                parts.push('<a href="' + encodeURI(place.link) + '" target="_blank" rel="noopener noreferrer">View on Google Maps</a>');
+            }
+            return parts.join('<br>');
+        }
+
+        function placeListItem(place, onSelect) {
+            var item = document.createElement('div');
+            item.className = 'place-item';
+            item.dataset.search = ((place.title || '') + ' ' + (place.address || '') + ' ' + (place.category || '')).toLowerCase();
+            item.innerHTML = '<div class="place-item-head">' +
+                    '<div class="place-title">' + escapeHtml(place.title) + '</div>' +
+                    (place.distance_text ? '<span class="place-distance">📍 ' + escapeHtml(place.distance_text) + '</span>' : '') +
+                '</div>' +
+                (place.address ? '<div class="place-address">' + escapeHtml(place.address) + '</div>' : '') +
+                (place.review_rating ? '<div class="place-rating">★ ' + escapeHtml(String(place.review_rating)) + '</div>' : '');
+            item.addEventListener('click', onSelect);
+            return item;
+        }
+
+        function renderPlaces(map, itemsEl) {
+            var bounds = [];
+
+            places.forEach(function (place) {
+                var latlng = [place.latitude, place.longitude];
+                bounds.push(latlng);
+
+                L.marker(latlng).bindPopup(placePopup(place)).addTo(map);
+                itemsEl.appendChild(placeListItem(place, function () {
+                    map.setView(latlng, 16);
+                }));
+            });
+
+            map.fitBounds(bounds, { padding: [30, 30] });
+            setTimeout(function () { map.invalidateSize(); }, 0);
+        }
+
+        // buildToolbar adds a live search box + result counter above the list and
+        // wires filtering so users can quickly narrow large result sets.
+        function buildToolbar(listEl, itemsEl) {
+            var bar = document.createElement('div');
+            bar.className = 'places-toolbar';
+
+            var input = document.createElement('input');
+            input.type = 'search';
+            input.className = 'places-search';
+            input.placeholder = 'Filter by name, address, category…';
+
+            var count = document.createElement('div');
+            count.className = 'places-count';
+
+            function refreshCount() {
+                var shown = itemsEl.querySelectorAll('.place-item:not(.hidden)').length;
+                count.textContent = shown + ' of ' + places.length + ' places';
+            }
+
+            input.addEventListener('input', function () {
+                var q = input.value.trim().toLowerCase();
+                itemsEl.querySelectorAll('.place-item').forEach(function (el) {
+                    var match = !q || (el.dataset.search || '').indexOf(q) !== -1;
+                    el.classList.toggle('hidden', !match);
+                });
+                refreshCount();
+            });
+
+            bar.appendChild(input);
+            bar.appendChild(count);
+            listEl.appendChild(bar);
+
+            return refreshCount;
+        }
+
+        function showEmptyState(map, listEl) {
+            listEl.innerHTML = '<p class="map-empty">No places with coordinates were found for this job.</p>';
+            map.setView([0, 0], 2);
+        }
+
+        function initJobMap() {
+            var listEl = document.getElementById('job-places-list');
+            var map = createMap();
+
+            var titleEl = document.getElementById('map-modal-title');
+            if (titleEl) {
+                var hasDistance = places.length > 0 && !!places[0].distance_text;
+                titleEl.textContent = 'Places (' + places.length + ')' +
+                    (hasDistance ? ' — sorted by nearest' : '');
+            }
+
+            listEl.innerHTML = '';
+
+            if (places.length === 0) {
+                showEmptyState(map, listEl);
+                return;
+            }
+
+            var itemsEl = document.createElement('div');
+            itemsEl.className = 'place-items';
+
+            var refreshCount = buildToolbar(listEl, itemsEl);
+            listEl.appendChild(itemsEl);
+
+            renderPlaces(map, itemsEl);
+            refreshCount();
+        }
+
+        window.closeJobMap = function () {
+            if (window.__jobMap) {
+                window.__jobMap.remove();
+                window.__jobMap = null;
+            }
+
+            var container = document.getElementById('map-modal-container');
+            if (container) {
+                container.innerHTML = '';
+            }
+        };
+
+        ensureLeaflet(initJobMap);
+    })();
+    </script>
+</div>

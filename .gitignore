@@ -1,0 +1,16 @@
+cache/
+vendor
+bin
+webdata/
+# local test credentials / private keys — never commit
+local/test_ssh_key
+local/test_ssh_key.pub
+*.log
+# scraper outputs / local data
+*.csv
+!testdata/**/*.csv
+!gmaps/testdata/**/*.csv
+examples/examples-api/map-outputs
+examples/examples-api/**/__pycache__/
+examples/examples-api/**/*.py[cod]
+gmaps-output

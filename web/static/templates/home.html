@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Maps Scraper — Extract business leads at scale</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body class="landing">
+    <header class="landing-nav">
+        <a class="brand" href="/">🗺️ <span>Maps Scraper</span></a>
+        <nav>
+            <a href="#features">Features</a>
+            <a href="#how">How it works</a>
+            <a href="#api">API</a>
+            <a href="/api/docs" target="_blank" rel="noopener noreferrer">API Docs</a>
+            <a class="nav-cta" href="/app">Open App →</a>
+        </nav>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-bg" aria-hidden="true">
+            <span class="pin pin-1"></span>
+            <span class="pin pin-2"></span>
+            <span class="pin pin-3"></span>
+            <span class="pin pin-4"></span>
+            <span class="pin pin-5"></span>
+        </div>
+        <div class="hero-inner">
+            <span class="badge">Open source · Go · Self-hosted</span>
+            <h1 class="hero-title">Turn Google Maps into<br><span class="grad">clean business leads</span></h1>
+            <p class="hero-sub">
+                Extract names, phones, websites, emails, ratings, reviews and GPS coordinates
+                for any place — sorted <strong>nearest-first</strong> with the distance in m/km.
+                Run it from a friendly Web UI or a headless REST API.
+            </p>
+            <div class="hero-actions">
+                <a class="button btn-lg" href="/app">Start scraping</a>
+                <a class="button btn-lg btn-ghost" href="#api">Use the API</a>
+            </div>
+            <div class="hero-stats">
+                <div><strong>36</strong><span>data points</span></div>
+                <div><strong>3</strong><span>interfaces</span></div>
+                <div><strong>m/km</strong><span>distance ranking</span></div>
+                <div><strong>SOCKS5/HTTP</strong><span>proxy support</span></div>
+            </div>
+
+            <!-- Product preview (real scraping result) -->
+            <div class="hero-preview">
+                <div class="browser-mock">
+                    <div class="browser-bar">
+                        <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
+                        <div class="browser-url">localhost:8080/app · nearest-first results</div>
+                        <span class="live-badge"><span class="live-dot"></span>live</span>
+                    </div>
+                    <img class="preview-img" src="/static/img/preview-map.png"
+                         alt="Scraped cafes in Athens shown on a map, ranked nearest-first with distance badges">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="section">
+        <h2 class="section-title">Everything you need to build lead lists</h2>
+        <p class="section-lead">A focused toolkit for local business research, sales prospecting and data enrichment.</p>
+        <div class="feature-grid">
+            <article class="feature-card">
+                <div class="feature-ico">📍</div>
+                <h3>Nearest-first &amp; distance</h3>
+                <p>Set a center point and every result is ranked by proximity with the distance shown in meters or kilometers.</p>
+            </article>
+            <article class="feature-card">
+                <div class="feature-ico">🏷️</div>
+                <h3>36 data points</h3>
+                <p>Title, category, address, phone, website, rating, review count, hours, price range, coordinates and more.</p>
+            </article>
+            <article class="feature-card">
+                <div class="feature-ico">✉️</div>
+                <h3>Email extraction</h3>
+                <p>Optionally visit each business website and pull contact emails for outreach-ready leads.</p>
+            </article>
+            <article class="feature-card">
+                <div class="feature-ico">🗺️</div>
+                <h3>Interactive map view</h3>
+                <p>See all scraped places on a live map, click a result to zoom, and browse the ranked list side-by-side.</p>
+            </article>
+            <article class="feature-card">
+                <div class="feature-ico">🛡️</div>
+                <h3>Proxy rotation</h3>
+                <p>Route traffic through SOCKS5/HTTP/HTTPS proxies to protect your IP and avoid rate limits.</p>
+            </article>
+            <article class="feature-card">
+                <div class="feature-ico">⚡</div>
+                <h3>REST API in Go</h3>
+                <p>A fast, FastAPI-style JSON API — deploy it headless and drive scraping straight from your own app.</p>
+            </article>
+        </div>
+    </section>
+
+    <!-- How it works -->
+    <section id="how" class="section section-alt">
+        <h2 class="section-title">How it works</h2>
+        <div class="steps">
+            <div class="step"><span class="step-n">1</span><h3>Describe the leads</h3><p>Enter keywords like “dentist in Berlin” and, optionally, a center point for nearest ranking.</p></div>
+            <div class="step"><span class="step-n">2</span><h3>Run the job</h3><p>The engine searches Google Maps, opens each listing and extracts the full business profile.</p></div>
+            <div class="step"><span class="step-n">3</span><h3>Review on the map</h3><p>Browse results ranked by distance, open the map, and inspect every place.</p></div>
+            <div class="step"><span class="step-n">4</span><h3>Export</h3><p>Download a clean CSV, or pull results through the REST API in JSON.</p></div>
+        </div>
+        <div class="center"><a class="button btn-lg" href="/app">Open the Manage dashboard →</a></div>
+    </section>
+
+    <!-- API -->
+    <section id="api" class="section">
+        <h2 class="section-title">Deploy the API — no UI required</h2>
+        <p class="section-lead">
+            The whole scraper is available as a JSON REST API. Set <code>API_ONLY=1</code> to run a
+            headless backend and integrate scraping into your own product.
+        </p>
+        <div class="api-cols">
+            <div class="code-card">
+                <div class="code-head">Create a scraping job</div>
+<pre><code>curl -X POST http://localhost:8080/api/v1/jobs \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "dentists-berlin",
+    "keywords": ["dentist in Berlin"],
+    "lang": "en",
+    "depth": 5,
+    "max_time": "10m"
+  }'</code></pre>
+            </div>
+            <div class="code-card">
+                <div class="code-head">Fetch results as JSON</div>
+<pre><code>curl http://localhost:8080/api/v1/jobs/&lt;id&gt;
+
+# or download the CSV
+curl -OJ \
+  http://localhost:8080/api/v1/jobs/&lt;id&gt;/download</code></pre>
+            </div>
+        </div>
+        <div class="center"><a class="button btn-lg btn-ghost" href="/api/docs" target="_blank" rel="noopener noreferrer">Browse full API reference →</a></div>
+    </section>
+
+    <footer class="landing-footer">
+        <p>🗺️ Google Maps Scraper · Open-source (MIT) · Self-hosted</p>
+        <p class="muted">Use responsibly and in accordance with applicable terms and local laws.</p>
+    </footer>
+</body>
+</html>
