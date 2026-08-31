@@ -1,4 +1,7 @@
 cache/
+# This is dependency source code, not runtime cache data.
+!third_party/scrapemate/adapters/cache/
+!third_party/scrapemate/adapters/cache/**
 vendor
 bin
 webdata/
