@@ -4,7 +4,7 @@
 
 ### Extract Google Maps leads — names, phones, emails, websites, ratings & reviews — ranked **nearest-first** with distance in m/km. Web UI · REST API · CLI. Written in Go.
 
-[![Go](https://img.shields.io/badge/Go-1.24+-00ADD8?logo=go&logoColor=white)](https://go.dev)
+[![Go](https://img.shields.io/badge/Go-1.26.5+-00ADD8?logo=go&logoColor=white)](https://go.dev)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)](#option-b--docker)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#-contributing)
@@ -62,10 +62,14 @@ A real scrape of **“cafe in athens”** (center point set → sorted by distan
 
 ## 🚀 Quick Start
 
-### Option A — Build from source (Go 1.24+)
+This fork includes the browser lifecycle fixes tested on Windows. See the
+[Windows setup guide (Português)](docs/windows-pt-BR.md) and
+[dependency provenance and changes](third_party/README.md).
+
+### Option A — Build from source (Go 1.26.5 minimum; Go 1.27 recommended)
 
 ```bash
-git clone https://github.com/hannesegi/tools-google-maps.git
+git clone https://github.com/KaiD3v/tools-google-maps.git
 cd tools-google-maps
 go build -o bin/gms .
 
